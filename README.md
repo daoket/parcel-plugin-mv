@@ -4,7 +4,7 @@ purpose: move static file.
 ## install
 
 ```
-yarn add parcel-plugin-mv -
+yarn add parcel-plugin-mv -D
 ```
 No configuration is required.
 
