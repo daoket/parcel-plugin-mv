@@ -10,33 +10,42 @@ module.exports = bundler => {
 			const dir = path.dirname(bundle.name) //...\[projectName]\target\[projectName]
 
 			var sep = path.sep;
+
 			function mv(spath, tpath) {
-				return new Promise(resolve => {
-					readfiles(spath, "", true, function (files) {
-						files.forEach(function (file) {
-							fs.readFile(file, function (err, data) {
-								if (err) {
-									throw err;
-								}
-								file = tpath + file.replace(spath, "");
-								mkdirs(path.dirname(file), function () {
-									fs.writeFile(file, data, function (err) {
-										if (err) {
-											throw err;
-										}
-										resolve('move success!')
-									});
+				readfiles(spath, "", true, function (files) {
+					files.forEach(function (file) {
+						fs.readFile(file, function (err, data) {
+							if (err) {
+								throw err;
+							}
+							file = tpath + file.replace(spath, "");
+							mkdirs(path.dirname(file), function () {
+								fs.writeFile(file, data, function (err) {
+									if (err) {
+										throw err;
+									}
+									// console.log('static move success!')
 								});
 							});
 						});
-					}, true);
-				})
+					});
+					console.log('static move success!')
+				}, true);
 			}
-			(async () => {
-				const originPath = path.join(path.dirname(path.dirname(dir)), './src/static')
-				const buildPath = path.join(dir, './static')
-				await mv(originPath, buildPath)
-			})()
+
+			var originPath = path.join(path.dirname(path.dirname(dir)), './src/static')
+			const buildPath = path.join(dir, './static')
+
+			fs.exists(originPath, (exists) => {
+				if (!exists) {
+					originPath = path.join(path.dirname(dir), './src/static')
+					fs.exists(originPath, (exists) => {
+						exists && mv(originPath, buildPath)
+					})
+				} else {
+					mv(originPath, buildPath)
+				}
+			})
 		}
 	})
 }
